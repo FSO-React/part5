@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Notification from './components/Notification'  
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -9,6 +10,8 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [blog, setBlog] = useState({ title: '', author: '', url: '' })
+  const [message, setMessage] = useState(null)
+  const [statusMessage, setStatusMessage] = useState(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -40,34 +43,59 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
+      defineMessage({ message: 'login successful!', isSuccess: true })
     } catch (exception) {
-      alert('Wrong credentials')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      defineMessage({ message: 'wrong username or password', isSuccess: false })
     }
   }
 
   const handleLogout = () => {
+    event.preventDefault()
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
+    defineMessage({ message: 'logged out', isSuccess: true })
   }
 
-  const handleCreateBlog = async () => {
+  const handleCreateBlog = async (event) => {
+    event.preventDefault()
     try {
       const newBlog = await blogService.create(blog)
       if (newBlog) {
         setBlogs(blogs.concat(newBlog))
         setBlog({ title: '', author: '', url: '' })
       }
+      defineMessage({ message: `blog "${blog.title}" (by ${blog.author}) created successfully!`, isSuccess: true })
     } catch (exception) {
-      console.log(exception)
+      defineMessage({ message: 'error creating blog', isSuccess: false })
+        }
+  }
+
+  const defineMessage = ({ message, isSuccess }) => {
+    //reset
+    setMessage(null)
+    setStatusMessage(null)
+    //success
+    if (isSuccess) {
+      setStatusMessage('success')
+      setMessage(message)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+      return
     }
+    //error
+    setStatusMessage('error')
+    setMessage(message)
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
+    return
   }
 
   const loginForm = () => (
     <>
       <h1>log in to application</h1>
+      <Notification status={statusMessage} message={message}></Notification>
       <form onSubmit={handleLogin}>
         <div>
           username
@@ -87,7 +115,7 @@ const App = () => {
             onChange={({ target }) => setPassword(target.value)}
           />
         </div>
-        <button type="submit">login</button>
+        <button type="submit">login</button>  
       </form>      
     </>
   )
@@ -129,6 +157,7 @@ const App = () => {
   const blogForm = () => (
     <div>
       <h1>blogs</h1>
+      <Notification status={statusMessage} message={message}></Notification>
       <p>
         {user.name} logged-in
         <button onClick={handleLogout}>logout</button>
