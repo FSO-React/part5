@@ -68,9 +68,9 @@ const App = () => {
     console.log('objeto a actualizar: ', blogObject)
     try {
       const newBlog = await blogService.create(blogObject)
-      if (newBlog) {
-        setBlogs(blogs.concat(newBlog))
-        defineMessage({ message: `blog "${newBlog.title}" (by ${newBlog.author}) created successfully!`, isSuccess: true })
+      if (newBlog.data) {
+        setBlogs(blogs.concat(newBlog.data))
+        defineMessage({ message: `blog "${newBlog.data.title}" (by ${newBlog.data.author}) created successfully!`, isSuccess: true })
       }
     } catch (exception) {
       defineMessage({ message: `error creating blog: ${exception.message}`, isSuccess: false })
@@ -80,12 +80,25 @@ const App = () => {
   const updateBlog = async (blogObject) => {
     try {
       const updatedBlog = await blogService.update(blogObject.id, blogObject)
-      if (updatedBlog) {
-        setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog))
-        defineMessage({ message: `blog "${updatedBlog.title}" (by ${updatedBlog.author}) updated successfully!`, isSuccess: true })
+      if (updatedBlog.data) {
+        setBlogs(blogs.map(blog => blog.id === updatedBlog.data.id ? updatedBlog.data : blog))
+        defineMessage({ message: `blog "${updatedBlog.data.title}" (by ${updatedBlog.data.author}) updated successfully!`, isSuccess: true })
       }
     } catch (exception) {
       defineMessage({ message: `error updating blog: ${exception.message}`, isSuccess: false })
+    }
+  }
+
+  const removeBlog = async (blogObject) => {
+    try {
+      const response = await blogService.remove(blogObject.id)
+      console.log(response)
+      if (response.status === 204) {
+        setBlogs(blogs.filter(blog => blog.id !== blogObject.id))
+        defineMessage({ message: `blog "${blogObject.title}" (by ${blogObject.author}) removed successfully!`, isSuccess: true })
+      }
+    } catch (exception) {
+      defineMessage({ message: `error removing blog: ${exception.message}`, isSuccess: false })
     }
   }
 
@@ -145,7 +158,7 @@ const App = () => {
 
       <br /> 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} />
       )}
     </div>  
   )

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlog, removeBlog }) => {
   const blogStyle = {
     padding: 8,
     border: 'solid',
@@ -10,6 +10,12 @@ const Blog = ({ blog, updateBlog }) => {
 
   const buttonStyle = {
     margin: 4
+  }
+
+  const deleteButtonStyle = {
+    margin: 4,
+    backgroundColor: 'red',
+    color: 'white'
   }
 
   const [showDetails, setShowDetails] = useState(false)
@@ -25,6 +31,11 @@ const Blog = ({ blog, updateBlog }) => {
       likes: blog.likes + 1
     }
     updateBlog(updatedBlog)
+  }
+
+  const deleteBlog = (event) => {
+    event.preventDefault()
+    removeBlog(blog)
   }
 
   return (
@@ -43,10 +54,10 @@ const Blog = ({ blog, updateBlog }) => {
             </div>  
             <div> 
               <strong>author:</strong> {blog.author}
-            </div>  
+            </div>
+            <button onClick={deleteBlog} style={deleteButtonStyle}> remove </button>  
           </div> 
         }
-
       </div>
     </div>  
   )
