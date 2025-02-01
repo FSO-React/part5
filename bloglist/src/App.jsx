@@ -13,9 +13,20 @@ const App = () => {
   const [message, setMessage] = useState(null)
   const [statusMessage, setStatusMessage] = useState(null)
 
+  const sortByLikes = (a, b) => {
+    if (a.likes < b.likes) {
+      return 1
+    }
+    if (a.likes > b.likes) {
+      return -1
+    }
+    return 0
+  }
+
   useEffect(() => {
     async function fetchData() {
       const response = await blogService.getAll()
+      response.sort(sortByLikes)
       setBlogs( response )
     }
     fetchData()
@@ -54,6 +65,7 @@ const App = () => {
   }
   
   const addBlog = async (blogObject) => {
+    console.log('objeto a actualizar: ', blogObject)
     try {
       const newBlog = await blogService.create(blogObject)
       if (newBlog) {
@@ -62,6 +74,18 @@ const App = () => {
       }
     } catch (exception) {
       defineMessage({ message: `error creating blog: ${exception.message}`, isSuccess: false })
+    }
+  }
+
+  const updateBlog = async (blogObject) => {
+    try {
+      const updatedBlog = await blogService.update(blogObject.id, blogObject)
+      if (updatedBlog) {
+        setBlogs(blogs.map(blog => blog.id === updatedBlog.id ? updatedBlog : blog))
+        defineMessage({ message: `blog "${updatedBlog.title}" (by ${updatedBlog.author}) updated successfully!`, isSuccess: true })
+      }
+    } catch (exception) {
+      defineMessage({ message: `error updating blog: ${exception.message}`, isSuccess: false })
     }
   }
 
@@ -121,7 +145,7 @@ const App = () => {
 
       <br /> 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
       )}
     </div>  
   )
