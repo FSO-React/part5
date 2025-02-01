@@ -97,7 +97,7 @@ const App = () => {
 
   const blogForm = () => {
     return (
-      <Togglable buttonLabel='new blog'>
+      <Togglable buttonLabel='create new blog'>
         <BlogForm createBlog={addBlog}></BlogForm>
       </Togglable>
     )
