@@ -63,7 +63,7 @@ const App = () => {
       defineMessage({ message: 'wrong username or password', isSuccess: false })
     }
   }
-  
+
   const addBlog = async (blogObject) => {
     console.log('objeto a actualizar: ', blogObject)
     try {
@@ -146,21 +146,21 @@ const App = () => {
       <Notification status={statusMessage} message={message}></Notification>
 
       {!user && loginForm()}
-      {user && 
+      {user &&
         <div>
           <p>
             {user.name} logged in
-            <button onClick={handleLogout}>logout</button>  
+            <button onClick={handleLogout}>logout</button>
           </p>
           {blogForm()}
         </div>
-      } 
+      }
 
-      <br /> 
+      <br />
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} updateBlog={updateBlog} removeBlog={removeBlog} />
       )}
-    </div>  
+    </div>
   )
 }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, updateBlog, removeBlog }) => {
   const blogStyle = {
@@ -42,27 +43,33 @@ const Blog = ({ blog, updateBlog, removeBlog }) => {
 
   return (
     <div style={blogStyle}>
-      "{blog.title}"
+      {blog.title}
       <button onClick={toggleDetails} style={buttonStyle}> view </button>
       <div>
         {showDetails &&
           <div>
-            <div> 
+            <div>
               <strong>url:</strong> <a href={blog.url}> {blog.url} </a>
-            </div>  
-            <div> 
+            </div>
+            <div>
               <strong>likes:</strong> {blog.likes}
               <button onClick={likeBlog} style={buttonStyle}> like </button>
-            </div>  
-            <div> 
+            </div>
+            <div>
               <strong>author:</strong> {blog.author}
             </div>
-            <button onClick={deleteBlog} style={deleteButtonStyle}> remove </button>  
-          </div> 
+            <button onClick={deleteBlog} style={deleteButtonStyle}> remove </button>
+          </div>
         }
       </div>
-    </div>  
+    </div>
   )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  updateBlog: PropTypes.func.isRequired,
+  removeBlog: PropTypes.func.isRequired
 }
 
 export default Blog
