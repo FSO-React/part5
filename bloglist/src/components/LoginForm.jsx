@@ -20,6 +20,7 @@ const LoginForm = ({ handleLogin }) => {
         <div>
           username
           <input
+            data-testid="username"
             type="text"
             value={username}
             name="Username"
@@ -29,6 +30,7 @@ const LoginForm = ({ handleLogin }) => {
         <div>
           password
           <input
+            data-testid="password"
             type="password"
             value={password}
             name="Password"
@@ -42,11 +44,7 @@ const LoginForm = ({ handleLogin }) => {
 }
 
 LoginForm.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
-  handleUsernameChange: PropTypes.func.isRequired,
-  handlePasswordChange: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  password: PropTypes.string.isRequired
+  handleLogin: PropTypes.func.isRequired
 }
 
 export default LoginForm
