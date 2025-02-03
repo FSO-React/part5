@@ -1,5 +1,5 @@
 const { test, describe, expect, beforeEach } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, logOut, likeBlog } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -8,6 +8,13 @@ describe('Blog app', () => {
       data: {
         name: 'Playwright',
         username: 'playwright',
+        password: '1234'
+      }
+    })
+    await request.post('/api/users', {
+      data: {
+        name: 'Secondary',
+        username: 'secondary',
         password: '1234'
       }
     })
@@ -47,6 +54,90 @@ describe('Blog app', () => {
       }
       await createBlog(page, blog)
       await expect(page.getByText(`${blog.title} - ${blog.author}`)).toBeVisible()
+    })
+
+    describe('When a blog exists', () => {
+      beforeEach(async ({ page }) => {
+        const blog = {
+          title: 'Previous Playwright blog',
+          author: 'Playwright',
+          url: 'https://playwright.dev'
+        }
+        await createBlog(page, blog)
+      })
+
+      test('a blog can be updated (by liking it)', async ({ page }) => {
+        const blog = await page.getByText('Previous Playwright blog - Playwright')
+        await blog.getByRole('button', { name: 'view' }).click()
+        await blog.getByRole('button', { name: 'like' }).click()
+        await expect(page.getByText('likes: 1')).toBeVisible()
+      })
+
+      test('a blog can be deleted by its author', async ({ page }) => {
+        const blog = await page.getByText('Previous Playwright blog - Playwright')
+        await blog.getByRole('button', { name: 'view' }).click()
+        // confirmar la eliminacion en el window.confirm
+        page.on('dialog', async (dialog) => {
+          expect(dialog.type()).toBe('confirm')
+          await dialog.accept()
+        })
+        await blog.getByRole('button', { name: 'remove' }).click()
+        await expect(page.getByText('Previous Playwright blog - Playwright')).not.toBeVisible()
+      })
+
+      describe('When a different user sees the blog', () => {
+        beforeEach(async ({ page }) => {
+          logOut(page)
+          await loginWith(page, 'secondary', '1234')
+        })
+  
+        test('a blog cant be deleted', async ({ page }) => {
+          const blog = await page.getByText('Previous Playwright blog - Playwright')
+          await blog.getByRole('button', { name: 'view' }).click()
+          // confirmar la eliminacion en el window.confirm
+          page.on('dialog', async (dialog) => {
+            expect(dialog.type()).toBe('confirm')
+            await dialog.accept()
+          })
+          await blog.getByRole('button', { name: 'remove' }).click()
+          await expect(blog).toBeVisible()
+        })
+      })
+    })
+
+    describe('When multiple blogs exist', () => {
+      beforeEach(async ({ page }) => {
+        const blog1 = {
+          title: 'Playwright blog 1',
+          author: 'Playwright',
+          url: 'https://playwright.dev',
+        }
+        const blog2 = {
+          title: 'Playwright blog 2',
+          author: 'Playwright',
+          url: 'https://playwright.dev',
+        }
+        const blog3 = {
+          title: 'Playwright blog 3',
+          author: 'Playwright',
+          url: 'https://playwright.dev',
+        }
+        await createBlog(page, blog1)
+        await likeBlog(page, blog1, 2)
+
+        await createBlog(page, blog2)
+        await likeBlog(page, blog2, 1)
+
+        await createBlog(page, blog3)
+        await likeBlog(page, blog3, 3)
+      })
+
+      test('blogs are ordered according to likes', async ({ page }) => {        
+        const blogs = await page.locator('.blog').all()
+        await expect(blogs[0]).toContainText('Playwright blog 3 - Playwright')  
+        await expect(blogs[1]).toContainText('Playwright blog 1 - Playwright')  
+        await expect(blogs[2]).toContainText('Playwright blog 2 - Playwright')  
+      })
     })
   })
 })
