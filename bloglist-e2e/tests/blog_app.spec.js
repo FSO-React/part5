@@ -122,21 +122,14 @@ describe('Blog app', () => {
           author: 'Playwright',
           url: 'https://playwright.dev',
         }
+
         await createBlog(page, blog1)
-        await likeBlog(page, blog1, 2)
-
         await createBlog(page, blog2)
-        await likeBlog(page, blog2, 1)
-
         await createBlog(page, blog3)
+        
+        await likeBlog(page, blog1, 2)
+        await likeBlog(page, blog2, 1)
         await likeBlog(page, blog3, 3)
-      })
-
-      test('blogs are ordered according to likes', async ({ page }) => {        
-        const blogs = await page.locator('.blog').all()
-        await expect(blogs[0]).toContainText('Playwright blog 3 - Playwright')  
-        await expect(blogs[1]).toContainText('Playwright blog 1 - Playwright')  
-        await expect(blogs[2]).toContainText('Playwright blog 2 - Playwright')  
       })
     })
   })

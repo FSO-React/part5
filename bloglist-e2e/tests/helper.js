@@ -24,6 +24,7 @@ const likeBlog = async (page, blog, times) => {
   await blogDiv.getByRole('button', { name: 'view' }).click()
   for (let i = 0; i < times; i++) {
     await blogDiv.getByRole('button', { name: 'like' }).click()
+    await page.waitForTimeout(500)
   }
 }
 
